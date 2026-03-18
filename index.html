@@ -1,15 +1,64 @@
 <!DOCTYPE html>
-<html>
-<head><title>Лабораторні роботи</title></head>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrumSpace - Оренда репетиційних баз</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
 <body>
-    <h1>Виконала: Сахно Маргарита | Група: ІО-35</h1>
-    <ul>
-        <li><a href="lab1/">Лабораторна работа 1</a></li>
-        <li><a href="lab2/">Лабораторна работа 2</a></li>
-        <li><a href="lab3/">Лабораторна работа 3</a></li>
-        <li><a href="lab4/">Лабораторна работа 4</a></li>
-        <li><a href="lab5/">Лабораторна работа 5</a></li>
-        <li><a href="lab6/">Лабораторна работа 6</a></li>
-    </ul>
+
+    <header class="header">
+        <div class="logo">🥁 DrumSpace</div>
+        
+        <nav class="navbar">
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#">Головна</a></li>
+                <li><a href="#">Каталог баз</a></li>
+                <li><a href="#">Бронювання</a></li>
+            </ul>
+            
+            <div class="burger" id="burger-menu">
+                <span class="line"></span>
+                <span class="line"></span>
+                <span class="line"></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="hero">
+            <h1>Знайди свою ідеальну базу</h1>
+            <p>Бронюй найкращі репетиційні кімнати з топовим обладнанням.</p>
+        </section>
+
+        <section class="bases-grid">
+            <div class="card">
+                <h3>База "Ритм"</h3>
+                <p>Установка: Pearl Export</p>
+                <p>Ціна: 250 грн/год</p>
+                <button class="btn">Забронювати</button>
+            </div>
+            <div class="card">
+                <h3>База "Гуркіт"</h3>
+                <p>Установка: Tama Superstar</p>
+                <p>Ціна: 300 грн/год</p>
+                <button class="btn">Забронювати</button>
+            </div>
+            <div class="card">
+                <h3>База "Андеграунд"</h3>
+                <p>Установка: Mapex Mars</p>
+                <p>Ціна: 200 грн/год</p>
+                <button class="btn">Забронювати</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 DrumSpace. Усі права захищено.</p>
+        <p>Контакти: info@drumspace.com</p>
+    </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
