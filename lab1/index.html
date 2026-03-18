@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DrumSpace - Оренда репетиційних баз</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>DrumSpace | Професійні репетиційні бази</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
     <header class="header">
-        <div class="logo">DrumSpace</div>
+        <div class="logo">DRUM<span>SPACE</span></div>
         
         <nav class="navbar">
             <ul class="nav-links" id="nav-links">
                 <li><a href="#home">Головна</a></li>
-                <li><a href="#catalog">Каталог кімнат</a></li>
+                <li><a href="#catalog">Бази</a></li>
                 <li><a href="#features">Переваги</a></li>
                 <li><a href="#contacts">Контакти</a></li>
-                <li><a href="#" class="login-link">Увійти</a></li>
             </ul>
             
             <div class="burger" id="burger-menu">
@@ -30,119 +29,115 @@
     </header>
 
     <main class="main-content">
-        
         <section class="hero" id="home">
-            <h1>Твій ідеальний ритм</h1>
-            <p>Бронюй найкращі репетиційні кімнати з топовим залізом в один клік</p>
-            
-            <form class="search-bar" action="#" method="GET">
-                <input type="text" placeholder="Станція метро або назва бази..." required>
-                <button type="submit" class="btn">Знайти базу</button>
-            </form>
-        </section>
-
-        <h2 class="section-title" id="catalog">Доступні кімнати</h2>
-        <section class="bases-grid">
-            
-            <article class="card">
-                <div class="card-header">
-                    <span class="badge acoustic">Акустика</span>
-                    <h3>Кімната "Грім"</h3>
-                </div>
-                <div class="card-body">
-                    <p class="location">📍 База "Ритм", ст. м. Почайна</p>
-                    <ul class="gear-list">
-                        <li>🥁 Tama Starclassic Performer</li>
-                        <li>Залізо: Zildjian K Custom</li>
-                        <li>Пульт: Yamaha MG12XU</li>
-                    </ul>
-                </div>
-                <div class="card-footer">
-                    <p class="price">350 грн <span>/ год</span></p>
-                    <button class="btn">Забронювати</button>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-header">
-                    <span class="badge electronic">Електронні</span>
-                    <h3>Кімната "Синтез"</h3>
-                </div>
-                <div class="card-body">
-                    <p class="location">База "Андеграунд", ст. м. Контрактова</p>
-                    <ul class="gear-list">
-                        <li>🥁 Roland TD-27KV</li>
-                        <li>Подвійна педаль DW 5000</li>
-                        <li>2 пари навушників ATH-M50x</li>
-                    </ul>
-                </div>
-                <div class="card-footer">
-                    <p class="price">250 грн <span>/ год</span></p>
-                    <button class="btn">Забронювати</button>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-header">
-                    <span class="badge acoustic">Акустика</span>
-                    <h3>Кімната "Джаз"</h3>
-                </div>
-                <div class="card-body">
-                    <p class="location">📍 База "Ритм", ст. м. Почайна</p>
-                    <ul class="gear-list">
-                        <li>🥁 Gretsch Catalina Club</li>
-                        <li>Залізо: Meinl Byzance</li>
-                        <li>Мікрофони для запису</li>
-                    </ul>
-                </div>
-                <div class="card-footer">
-                    <p class="price">300 грн <span>/ год</span></p>
-                    <button class="btn">Забронювати</button>
-                </div>
-            </article>
-
-        </section>
-
-        <h2 class="section-title" id="features">Чому обирають нас?</h2>
-        <section class="features-grid">
-            <div class="feature-card">
-                <h3>🕒 24/7 Доступ</h3>
-                <p>Багато наших партнерів працюють цілодобово. Грай, коли є натхнення.</p>
-            </div>
-            <div class="feature-card">
-                <h3>🎸 Топове обладнання</h3>
-                <p>Ми перевіряємо стан пластиків та заліза на кожній базі.</p>
-            </div>
-            <div class="feature-card">
-                <h3>📱 Зручне управління</h3>
-                <p>Скасовуй або перенось репетиції прямо в особистому кабінеті.</p>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>ТВІЙ ІДЕАЛЬНИЙ РИТМ</h1>
+                <p>Бронюй професійні репетиційні кімнати з топовим залізом</p>
+                <a href="#catalog" class="btn btn-primary">Обрати кімнату</a>
             </div>
         </section>
 
+        <section class="catalog-section" id="catalog">
+            <h2 class="section-title">ДОСТУПНІ КІМНАТИ</h2>
+            <div class="bases-grid">
+                
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?q=80&w=800&auto=format&fit=crop" alt="Акустична кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Грім"</h3>
+                            <span class="badge">Акустика</span>
+                        </div>
+                        <p class="location">База "Ритм", ст. м. Почайна</p>
+                        <ul class="gear-list">
+                            <li>Tama Starclassic Performer</li>
+                            <li>Залізо: Zildjian K Custom</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">350 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1543443374-b6ebacfb8bb8?q=80&w=800&auto=format&fit=crop" alt="Електронна кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Синтез"</h3>
+                            <span class="badge">Електро</span>
+                        </div>
+                        <p class="location">База "Андеграунд", ст. м. Контрактова</p>
+                        <ul class="gear-list">
+                            <li>Roland TD-27KV</li>
+                            <li>Подвійна педаль DW 5000</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">250 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1595069906974-fdb48e23f994?q=80&w=800&auto=format&fit=crop" alt="Студійна кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Студія"</h3>
+                            <span class="badge">Преміум</span>
+                        </div>
+                        <p class="location">База "Sound", ст. м. Олімпійська</p>
+                        <ul class="gear-list">
+                            <li>DW Collector's Series</li>
+                            <li>Мікрофони Shure & AKG</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">500 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="features-section" id="features">
+            <h2 class="section-title">ЧОМУ ОБИРАЮТЬ НАС</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>24/7 Доступ</h3>
+                    <p>Бронюй і грай у будь-який час. Творчість не має розкладу.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎛️</div>
+                    <h3>Топове обладнання</h3>
+                    <p>Регулярна заміна пластиків та налаштування інструментів.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Онлайн бронювання</h3>
+                    <p>Керуй своїми репетиціями через особистий кабінет без дзвінків.</p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="footer" id="contacts">
-        <div class="footer-content">
-            <div class="footer-col">
-                <h3>DrumSpace</h3>
-                <p>Перший в Україні сервіс оренди репетиційних баз виключно для барабанщиків.</p>
+        <div class="footer-container">
+            <div class="footer-info">
+                <h2>DRUM<span>SPACE</span></h2>
+                <p>Професійний сервіс оренди репетиційних баз.</p>
             </div>
-            <div class="footer-col">
-                <h4>Навігація</h4>
-                <ul>
-                    <li><a href="#catalog">Каталог</a></li>
-                    <li><a href="#">Правила скасування</a></li>
-                    <li><a href="#">Для власників баз</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Контакти</h4>
+            <div class="footer-contacts">
                 <p>Email: support@drumspace.ua</p>
                 <p>Тел: +38 (099) 123-45-67</p>
+                <p>Київ, Україна</p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 DrumSpace. Розроблено в рамках лабораторної роботи.</p>
+            <p>&copy; 2026 DrumSpace. Розроблено для КПІ.</p>
         </div>
     </footer>
 
