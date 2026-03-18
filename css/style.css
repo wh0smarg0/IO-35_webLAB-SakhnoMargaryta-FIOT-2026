@@ -120,11 +120,30 @@ h1, h2, h3, .logo {
     background-image: var(--bg-drum-image);
     background-size: cover;
     background-position: center;
-    background-attachment: fixed; 
-    clip-path: circle(0% at 50% 50%);
-    z-index: 2; 
+    background-attachment: fixed;
+    z-index: 2;
     pointer-events: none;
-    transition: clip-path 0.1s ease-out;
+    
+    /* --- CSS МАСКУВАННЯ --- */
+    --mask-x: 50%;
+    --mask-y: 50%;
+    --mask-size: 15vw;
+    --mask-wobble-w: 1.0;
+    --mask-wobble-h: 1.0;
+    --mask-opacity: 0.0;
+    
+    -webkit-mask-image: radial-gradient(
+        circle calc(var(--mask-size) * var(--mask-wobble-w)) at var(--mask-x) var(--mask-y),
+        rgba(0,0,0,var(--mask-opacity)) 0%,
+        rgba(0,0,0,var(--mask-opacity)) calc(100% - 50px),
+        rgba(0,0,0,0) 100%
+    );
+    mask-image: radial-gradient(
+        circle calc(var(--mask-size) * var(--mask-wobble-w)) at var(--mask-x) var(--mask-y),
+        rgba(0,0,0,var(--mask-opacity)) 0%,
+        rgba(0,0,0,var(--mask-opacity)) calc(100% - 50px),
+        rgba(0,0,0,0) 100%
+    );
 }
 
 .hero-content {
