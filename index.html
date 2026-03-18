@@ -31,14 +31,12 @@
     </header>
 
     <main class="main-content">
-        <section class="hero" id="home">
-            <div class="hero-bg-blurred"></div>
-            <div class="hero-bg-sharp-bubble"></div>
         
+        <section class="hero" id="home">
             <div class="hero-content">
                 <div class="glass-panel">
                     <h1>ТВІЙ ІДЕАЛЬНИЙ РИТМ</h1>
-                    <p>Бронюй професійні репетиційні кімнати з топовим залізом.</p>
+                    <p>Бронюй професійні репетиційні кімнати з топовим залізом. Жодних компромісів зі звуком.</p>
                     <a href="#catalog" class="btn btn-primary">ОБРАТИ КІМНАТУ</a>
                 </div>
             </div>
@@ -104,6 +102,7 @@
                         </div>
                     </div>
                 </article>
+
             </div>
         </section>
 
@@ -130,20 +129,27 @@
     </main>
 
     <div class="modal" id="booking-modal">
-        <div class="modal-content">
+        <div class="modal-content stub-content">
             <span class="close-modal">&times;</span>
-            <h3>ШВИДКЕ БРОНЮВАННЯ</h3>
-            <form id="booking-form">
-                <div class="form-group">
-                    <label>Ваше ім'я</label>
-                    <input type="text" placeholder="Введіть ім'я" required>
-                </div>
-                <div class="form-group">
-                    <label>Дата та час</label>
-                    <input type="datetime-local" required>
-                </div>
-                <button type="submit" class="btn btn-primary">ПІДТВЕРДИТИ</button>
-            </form>
+            <h3>Бронювання кімнати</h3>
+            <p class="stub-text">Заглушка вікна бронювання.</p>
+            <p class="stub-subtext">Це тимчасове вікно. У наступних лабораторних роботах тут буде реалізована форма бронювання репетиційних кімнат з вибором часу та обладнання.</p>
+            <div class="stub-buttons">
+                <button class="btn btn-outline close-stub">Повернутись</button>
+                <a href="#catalog" class="btn btn-primary close-stub">До каталогу</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="login-modal">
+        <div class="modal-content stub-content">
+            <span class="close-modal">&times;</span>
+            <h3>Особистий кабінет</h3>
+            <p class="stub-text">Вхід у систему (Заглушка).</p>
+            <p class="stub-subtext">Ця сторінка в розробці. У наступній лабораторній роботі тут буде реалізована форма авторизації (Login/Register) та особистий кабінет музиканта.</p>
+            <div class="stub-buttons">
+                <button class="btn btn-primary close-stub">Зрозуміло</button>
+            </div>
         </div>
     </div>
 
@@ -160,7 +166,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 DrumSpace.</p>
+            <p>&copy; 2026 DrumSpace</p>
         </div>
     </footer>
 
