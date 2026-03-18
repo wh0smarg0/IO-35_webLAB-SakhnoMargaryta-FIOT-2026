@@ -19,6 +19,7 @@
                 <li><a href="#catalog">Бази</a></li>
                 <li><a href="#features">Переваги</a></li>
                 <li><a href="#contacts">Контакти</a></li>
+                <li><a href="#" class="btn-login" id="login-btn">УВІЙТИ</a></li>
             </ul>
             
             <div class="burger" id="burger-menu">
@@ -32,7 +33,6 @@
     <main class="main-content">
         <section class="hero" id="home">
             <div class="hero-bg-blurred"></div>
-        
             <div class="hero-bg-sharp-bubble"></div>
         
             <div class="hero-content">
@@ -49,7 +49,7 @@
             <div class="bases-grid">
                 
                 <article class="card">
-                    <img src="https://images.unsplash.com/photo-1461784121038-f088ca1e7714?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Акустична кімната" class="card-img">
+                    <img src="https://images.unsplash.com/photo-1461784121038-f088ca1e7714?q=80&w=1170&auto=format&fit=crop" alt="Акустична кімната" class="card-img">
                     <div class="card-content">
                         <div class="card-header">
                             <h3>Кімната "Грім"</h3>
@@ -68,7 +68,7 @@
                 </article>
 
                 <article class="card">
-                    <img src="https://images.unsplash.com/photo-1571512379571-1774d30459ea?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Електронна кімната" class="card-img">
+                    <img src="https://images.unsplash.com/photo-1571512379571-1774d30459ea?q=80&w=1074&auto=format&fit=crop" alt="Електронна кімната" class="card-img">
                     <div class="card-content">
                         <div class="card-header">
                             <h3>Кімната "Синтез"</h3>
@@ -104,11 +104,11 @@
                         </div>
                     </div>
                 </article>
-
             </div>
         </section>
 
         <section class="features-section" id="features">
+            <h2 class="section-title">ЧОМУ ОБИРАЮТЬ НАС</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <span class="material-icons-outlined feature-icon">schedule</span>
@@ -129,6 +129,24 @@
         </section>
     </main>
 
+    <div class="modal" id="booking-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3>ШВИДКЕ БРОНЮВАННЯ</h3>
+            <form id="booking-form">
+                <div class="form-group">
+                    <label>Ваше ім'я</label>
+                    <input type="text" placeholder="Введіть ім'я" required>
+                </div>
+                <div class="form-group">
+                    <label>Дата та час</label>
+                    <input type="datetime-local" required>
+                </div>
+                <button type="submit" class="btn btn-primary">ПІДТВЕРДИТИ</button>
+            </form>
+        </div>
+    </div>
+
     <footer class="footer" id="contacts">
         <div class="footer-container">
             <div class="footer-info">
@@ -142,7 +160,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 DrumSpace. Розроблено для КПІ.</p>
+            <p>&copy; 2026 DrumSpace.</p>
         </div>
     </footer>
 
