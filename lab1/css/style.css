@@ -91,38 +91,65 @@ h1, h2, h3, .logo {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background-image: url('https://images.unsplash.com/photo-1543443436-b5d123db1700?q=80&w=1920&auto=format&fit=crop');
+    background-image: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1920&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
 }
 
-.hero-overlay {
+.hero::before {
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(10,10,10,0.7), rgba(10,10,10,0.95));
-}
-
-.hero-content {
-    position: relative;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
     z-index: 1;
-    max-width: 800px;
-    padding: 0 20px;
 }
 
-.hero h1 {
+/* --- ЕФЕКТ РІДКОГО СКЛА (GLASSMORPHISM) --- */
+.glass-panel {
+    position: relative;
+    z-index: 2;
+    max-width: 850px;
+    padding: 60px 50px;
+    border-radius: 24px;
+    
+    /* Сама магія скла */
+    background: rgba(20, 20, 20, 0.4); /* Напівпрозорий темний фон */
+    backdrop-filter: blur(16px); /* Розмиття заднього фону */
+    -webkit-backdrop-filter: blur(16px);
+    
+    /* Тонка світла рамка, яка створює відблиск на краях скла */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    
+    /* Тінь для відділення панелі від фону */
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel h1 {
     font-size: 4.5rem;
     margin-bottom: 20px;
     line-height: 1.1;
+    text-shadow: 2px 4px 10px rgba(0,0,0,0.6);
 }
 
-.hero p {
+.glass-panel p {
     font-size: 1.2rem;
-    color: var(--text-muted);
+    color: #e0e0e0;
     margin-bottom: 40px;
+    text-shadow: 1px 2px 5px rgba(0,0,0,0.6);
+}
+
+/* Адаптивність для скляної панелі на телефонах */
+@media screen and (max-width: 768px) {
+    .glass-panel {
+        padding: 40px 20px;
+        margin: 0 15px;
+    }
+    .glass-panel h1 {
+        font-size: 3rem;
+    }
 }
 
 /* --- КНОПКИ --- */
