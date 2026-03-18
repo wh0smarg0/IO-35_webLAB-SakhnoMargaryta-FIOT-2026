@@ -11,6 +11,7 @@
     --text-muted: #a3a3a3;
     --accent: #e6b31e;
     --border-color: #2a2a2a;
+    --bg-drum-image: url('https://images.unsplash.com/photo-1461784121038-f088ca1e7714?q=80&w=1170&auto=format&fit=crop');
 }
 
 body {
@@ -87,69 +88,76 @@ h1, h2, h3, .logo {
 .hero {
     position: relative;
     height: 100vh;
+    width: 100%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    background-image: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1920&auto=format&fit=crop');
+}
+
+.hero-bg-blurred {
+    position: absolute;
+    top: -50px; left: -50px; right: -50px; bottom: -50px;
+    background-image: var(--bg-drum-image);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
+    filter: blur(30px);
     z-index: 1;
 }
 
-/* --- ЕФЕКТ РІДКОГО СКЛА (GLASSMORPHISM) --- */
-.glass-panel {
+.hero-bg-blurred::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.hero-bg-sharp-bubble {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: var(--bg-drum-image);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; 
+    clip-path: circle(0% at 50% 50%);
+    z-index: 2; 
+    pointer-events: none;
+    transition: clip-path 0.1s ease-out;
+}
+
+.hero-content {
     position: relative;
-    z-index: 2;
-    max-width: 850px;
-    padding: 60px 50px;
-    border-radius: 24px;
-    
-    /* Сама магія скла */
-    background: rgba(20, 20, 20, 0.4); /* Напівпрозорий темний фон */
-    backdrop-filter: blur(16px); /* Розмиття заднього фону */
-    -webkit-backdrop-filter: blur(16px);
-    
-    /* Тонка світла рамка, яка створює відблиск на краях скла */
+    z-index: 3;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+.glass-panel {
+    background: rgba(20, 20, 20, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-    
-    /* Тінь для відділення панелі від фону */
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
 }
 
 .glass-panel h1 {
-    font-size: 4.5rem;
+    font-size: 4rem;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
     margin-bottom: 20px;
     line-height: 1.1;
-    text-shadow: 2px 4px 10px rgba(0,0,0,0.6);
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
 }
 
 .glass-panel p {
     font-size: 1.2rem;
-    color: #e0e0e0;
-    margin-bottom: 40px;
-    text-shadow: 1px 2px 5px rgba(0,0,0,0.6);
-}
-
-/* Адаптивність для скляної панелі на телефонах */
-@media screen and (max-width: 768px) {
-    .glass-panel {
-        padding: 40px 20px;
-        margin: 0 15px;
-    }
-    .glass-panel h1 {
-        font-size: 3rem;
-    }
+    font-family: 'Inter', sans-serif;
+    color: #ccc;
+    margin-bottom: 30px;
 }
 
 /* --- КНОПКИ --- */
