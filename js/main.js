@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. БУРГЕР-МЕНЮ ---
+    // --- 1. МОБІЛЬНЕ МЕНЮ (БУРГЕР) ---
     const burger = document.getElementById('burger-menu');
     const navLinks = document.getElementById('nav-links');
     const navItems = document.querySelectorAll('.nav-links a');
@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navLinks.classList.toggle('active');
         });
         
+        // Закриваємо меню при кліку на будь-яке посилання
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 navLinks.classList.remove('active');
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
+            
             if (targetId === '#' || targetId === '') return;
             
             e.preventDefault();
@@ -35,54 +37,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 3. МОДАЛЬНЕ ВІКНО БРОНЮВАННЯ ---
-    const modal = document.getElementById('booking-modal');
-    const closeBtn = document.querySelector('.close-modal');
-    const bookingButtons = document.querySelectorAll('.btn-outline'); // Кнопки в картках
-    const bookingForm = document.getElementById('booking-form');
+    // --- 3. ЛОГІКА МОДАЛЬНИХ ВІКОН (БРОНЮВАННЯ ТА ВХІД) ---
+    const bookingModal = document.getElementById('booking-modal');
+    const loginModal = document.getElementById('login-modal');
+    
+    const loginBtn = document.getElementById('login-btn');
+    const bookingButtons = document.querySelectorAll('.btn-outline');
 
-    // Відкриття модалки при кліку на "Забронювати"
+    // Універсальна функція для закриття всіх вікон
+    const closeAllModals = () => {
+        bookingModal.style.display = 'none';
+        loginModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    };
+
+    // Відкриття вікна Бронювання
     bookingButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Забороняємо скрол фону
+            bookingModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         });
     });
 
-    // Закриття на хрестик
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        });
-    }
-
-    // Закриття при кліку поза вікном
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    });
-
-    // Обробка відправки форми
-    if (bookingForm) {
-        bookingForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Дякуємо! Ваша заявка прийнята. Ми зателефонуємо вам для підтвердження.');
-            modal.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            bookingForm.reset();
-        });
-    }
-
-    // --- 4. КНОПКА УВІЙТИ (Заглушка) ---
-    const loginBtn = document.getElementById('login-btn');
+    // Відкриття вікна Входу
     if (loginBtn) {
         loginBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            alert('Функціонал особистого кабінету буде реалізовано у наступній лабораторній роботі (Backend).');
+            loginModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         });
     }
+
+    document.querySelectorAll('.close-modal, .close-stub').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            closeAllModals();
+        });
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === bookingModal || e.target === loginModal) {
+            closeAllModals();
+        }
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
 });
