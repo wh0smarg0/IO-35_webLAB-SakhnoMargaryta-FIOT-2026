@@ -1,15 +1,175 @@
 <!DOCTYPE html>
-<html>
-<head><title>Лабораторні роботи</title></head>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrumSpace | Професійні репетиційні бази</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
 <body>
-    <h1>Виконала: Сахно Маргарита | Група: ІО-35</h1>
-    <ul>
-        <li><a href="lab1/">Лабораторна работа 1</a></li>
-        <li><a href="lab2/">Лабораторна работа 2</a></li>
-        <li><a href="lab3/">Лабораторна работа 3</a></li>
-        <li><a href="lab4/">Лабораторна работа 4</a></li>
-        <li><a href="lab5/">Лабораторна работа 5</a></li>
-        <li><a href="lab6/">Лабораторна работа 6</a></li>
-    </ul>
+
+    <header class="header">
+        <div class="logo">DRUM<span>SPACE</span></div>
+        
+        <nav class="navbar">
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home">Головна</a></li>
+                <li><a href="#catalog">Бази</a></li>
+                <li><a href="#features">Переваги</a></li>
+                <li><a href="#contacts">Контакти</a></li>
+                <li><a href="#" class="btn-login" id="login-btn">УВІЙТИ</a></li>
+            </ul>
+            
+            <div class="burger" id="burger-menu">
+                <span class="line"></span>
+                <span class="line"></span>
+                <span class="line"></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="glass-panel">
+                    <h1>ТВІЙ ІДЕАЛЬНИЙ РИТМ</h1>
+                    <p>Бронюй професійні репетиційні кімнати з топовим залізом. Жодних компромісів зі звуком.</p>
+                    <a href="#catalog" class="btn btn-primary">ОБРАТИ КІМНАТУ</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-section" id="catalog">
+            <h2 class="section-title">ДОСТУПНІ КІМНАТИ</h2>
+            <div class="bases-grid">
+                
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1461784121038-f088ca1e7714?q=80&w=1170&auto=format&fit=crop" alt="Акустична кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Грім"</h3>
+                            <span class="badge">Акустика</span>
+                        </div>
+                        <p class="location">База "Ритм", ст. м. Почайна</p>
+                        <ul class="gear-list">
+                            <li>Tama Starclassic Performer</li>
+                            <li>Залізо: Zildjian K Custom</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">350 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1571512379571-1774d30459ea?q=80&w=1074&auto=format&fit=crop" alt="Електронна кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Синтез"</h3>
+                            <span class="badge">Електро</span>
+                        </div>
+                        <p class="location">База "Андеграунд", ст. м. Контрактова</p>
+                        <ul class="gear-list">
+                            <li>Roland TD-27KV</li>
+                            <li>Подвійна педаль DW 5000</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">250 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <img src="https://images.unsplash.com/photo-1598653222000-6b7b7a552625?q=80&w=800&auto=format&fit=crop" alt="Студійна кімната" class="card-img">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Кімната "Студія"</h3>
+                            <span class="badge">Преміум</span>
+                        </div>
+                        <p class="location">База "Sound", ст. м. Олімпійська</p>
+                        <ul class="gear-list">
+                            <li>DW Collector's Series</li>
+                            <li>Мікрофони Shure & AKG</li>
+                        </ul>
+                        <div class="card-footer">
+                            <p class="price">500 грн<span>/год</span></p>
+                            <button class="btn btn-outline">Забронювати</button>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="features-section" id="features">
+            <h2 class="section-title">ЧОМУ ОБИРАЮТЬ НАС</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="material-icons-outlined feature-icon">schedule</span>
+                    <h3>24/7 Доступ</h3>
+                    <p>Бронюй і грай у будь-який час. Творчість не має розкладу.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons-outlined feature-icon">graphic_eq</span>
+                    <h3>Топове обладнання</h3>
+                    <p>Регулярна заміна пластиків та налаштування інструментів.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="material-icons-outlined feature-icon">smartphone</span>
+                    <h3>Онлайн бронювання</h3>
+                    <p>Керуй своїми репетиціями через особистий кабінет без дзвінків.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="booking-modal">
+        <div class="modal-content stub-content">
+            <span class="close-modal">&times;</span>
+            <h3>Бронювання кімнати</h3>
+            <p class="stub-text">Заглушка вікна бронювання.</p>
+            <p class="stub-subtext">Це тимчасове вікно. У наступних лабораторних роботах тут буде реалізована форма бронювання репетиційних кімнат з вибором часу та обладнання.</p>
+            <div class="stub-buttons">
+                <button class="btn btn-outline close-stub">Повернутись</button>
+                <a href="#catalog" class="btn btn-primary close-stub">До каталогу</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="login-modal">
+        <div class="modal-content stub-content">
+            <span class="close-modal">&times;</span>
+            <h3>Особистий кабінет</h3>
+            <p class="stub-text">Вхід у систему (Заглушка).</p>
+            <p class="stub-subtext">Ця сторінка в розробці. У наступній лабораторній роботі тут буде реалізована форма авторизації (Login/Register) та особистий кабінет музиканта.</p>
+            <div class="stub-buttons">
+                <button class="btn btn-primary close-stub">Зрозуміло</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer" id="contacts">
+        <div class="footer-container">
+            <div class="footer-info">
+                <h2>DRUM<span>SPACE</span></h2>
+                <p>Професійний сервіс оренди репетиційних баз.</p>
+            </div>
+            <div class="footer-contacts">
+                <p>Email: support@drumspace.ua</p>
+                <p>Тел: +38 (099) 123-45-67</p>
+                <p>Київ, Україна</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DrumSpace</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>

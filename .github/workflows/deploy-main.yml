@@ -1,15 +1,21 @@
-name: Deploy Main Index
+name: Deploy Lab to GitHub Pages
+
 on:
   push:
     branches:
-      - main
+      - 'lab*'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          keep_files: true 
+          destination_dir: ${{ github.ref_name }}
+          keep_files: true
