@@ -14,10 +14,16 @@
         <div class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">DRUM<span>SPACE</span></a></div>
 
         <nav class="navbar">
-            <ul class="nav-links">
-                <li><a href="index.html">Головна</a></li>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">На головну</a></li>
                 <li><a href="#" class="btn-login" id="logout-btn">ВИЙТИ</a></li>
             </ul>
+
+            <div class="burger" id="burger-menu">
+                <span class="line"></span>
+                <span class="line"></span>
+                <span class="line"></span>
+            </div>
         </nav>
     </header>
 
@@ -74,6 +80,21 @@
         </section>
     </main>
 
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-edit-modal">&times;</span>
+            <h3>Перенести репетицію</h3>
+            <form id="edit-form" class="form-layout">
+                <input type="hidden" id="editBookingId">
+                <div class="form-group">
+                    <label for="editDate">Нова дата та час</label>
+                    <input type="datetime-local" id="editDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Зберегти новий час</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const userId = localStorage.getItem('userId');
@@ -86,8 +107,17 @@
 
             // Налаштування профілю
             document.getElementById('profile-name').innerText = userName;
-            document.getElementById('profile-email').innerText = localStorage.getItem('userEmail') || 'музикант';
+            document.getElementById('profile-email').innerText = localStorage.getItem('userEmail');
             document.getElementById('user-initials').innerText = userName.substring(0, 2).toUpperCase();
+
+            // Логіка для мобільного бургер-меню
+            const burger = document.getElementById('burger-menu');
+            const navLinks = document.getElementById('nav-links');
+            if (burger && navLinks) {
+                burger.addEventListener('click', () => {
+                    navLinks.classList.toggle('active');
+                });
+            }
 
             // 1. Отримуємо бронювання з сервера
             async function fetchBookings() {
@@ -131,34 +161,52 @@
 
             // 3. Календар
             function renderCalendar(bookings) {
-                const events = bookings.map(b => ({
-                    title: b.roomName,
-                    start: b.content.replace('Дата репетиції: ', ''),
-                    backgroundColor: '#e50914',
-                    borderColor: '#e50914'
-                }));
+                const events = bookings.map(b => {
+                    // Витягуємо чисту дату (напр. 2026-04-15T18:00)
+                    const fullDateString = b.content.replace('Дата репетиції: ', '');
+                    // Витягуємо тільки час (напр. 18:00)
+                    const timeOnly = fullDateString.split('T')[1];
+
+                    return {
+                        title: timeOnly, // Тільки час як заголовок.
+                        start: fullDateString,
+                        backgroundColor: '#e50914',
+                        borderColor: '#e50914'
+                    }
+                });
 
                 const calendarEl = document.getElementById('calendar');
+                calendarEl.innerHTML = ''; // Очищаємо, якщо вже був намальований
                 const calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     locale: 'uk',
                     themeSystem: 'standard',
                     events: events,
-                    height: 'auto'
+                    height: 'auto',
+                    // ОСЬ ТЕ ЩО ЗМІНИЛОСЬ: Приховуємо час за замовчуванням,
+                    // оскільки ми вже використовуємо його як заголовок.
+                    displayEventTime: false
                 });
                 calendar.render();
             }
 
-            // 4. Таблиця з можливістю видалення
+            // 4. Таблиця з можливістю видалення та редагування
             function renderTable(bookings) {
                 const tbody = document.getElementById('bookings-list-body');
-                tbody.innerHTML = bookings.map(b => `
+                tbody.innerHTML = bookings.map(b => {
+                    // Витягуємо чисту дату для підстановки у форму (напр. 2026-04-15T18:00)
+                    const pureDate = b.content.replace('Дата репетиції: ', '');
+
+                    return `
                     <tr>
                         <td><strong>${b.roomName}</strong></td>
-                        <td>${b.content.replace('Дата репетиції: ', '')}</td>
-                        <td><button class="btn-delete" onclick="deleteBooking(${b.id})">Скасувати</button></td>
+                        <td>${pureDate.replace('T', ' ')}</td>
+                        <td style="display: flex; gap: 10px;">
+                            <button class="btn-edit" onclick="openEditModal(${b.id}, '${pureDate}')">Змінити час</button>
+                            <button class="btn-delete" onclick="deleteBooking(${b.id})">Скасувати</button>
+                        </td>
                     </tr>
-                `).join('');
+                `}).join('');
             }
 
             // 5. Перемикач табів
@@ -193,6 +241,50 @@
                 }
             }
         }
+
+        // --- ЛОГІКА РЕДАГУВАННЯ (UPDATE) ---
+        const editModal = document.getElementById('edit-modal');
+        const editForm = document.getElementById('edit-form');
+
+        // Відкриття модалки з поточними даними
+        window.openEditModal = function(id, currentDate) {
+            document.getElementById('editBookingId').value = id;
+            document.getElementById('editDate').value = currentDate;
+            editModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        };
+
+        // Закриття модалки
+        document.getElementById('close-edit-modal').addEventListener('click', () => {
+            editModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+
+        // Відправка нових даних на сервер
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editBookingId').value;
+            const newDate = document.getElementById('editDate').value;
+
+            try {
+                const response = await fetch(`http://localhost:3000/bookings/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: newDate })
+                });
+
+                if (response.ok) {
+                    alert('Час репетиції успішно оновлено!');
+                    location.reload(); // Перезавантажуємо, щоб оновити таблицю та календар
+                } else {
+                    alert('Помилка при оновленні.');
+                }
+            } catch (err) {
+                console.error('Помилка:', err);
+                alert('Немає зв’язку з сервером.');
+            }
+        });
+
     </script>
 </body>
 </html>

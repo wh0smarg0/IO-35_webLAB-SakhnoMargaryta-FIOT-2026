@@ -21,6 +21,15 @@ sequelize.sync({ alter: true })
   })
   .catch(err => console.error("Помилка підключення до БД: ❌", err));
 
+// Перевірка статусу сервера
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        service: "drumspace-api",
+        timestamp: new Date().toISOString()
+    });
+});
+
 // --- МАРШРУТИ АВТОРИЗАЦІЇ ---
 
 // 1. Реєстрація нового користувача
@@ -84,6 +93,28 @@ app.delete('/bookings/:id', async (req, res) => {
         } else {
             res.status(404).json({ error: "Запис не знайдено" });
         }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Редагування бронювання (CRUD: Update)
+app.put('/bookings/:id', async (req, res) => {
+    try {
+        // 1. Шукаємо запис за ID
+        const booking = await Booking.findByPk(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ error: "Бронювання не знайдено" });
+        }
+
+        // 2. Якщо передана нова дата, оновлюємо поле content
+        if (req.body.date) {
+            booking.content = `Дата репетиції: ${req.body.date}`;
+        }
+
+        // 3. Зберігаємо зміни в базу
+        await booking.save();
+        res.json({ message: "Час репетиції успішно змінено", booking });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
