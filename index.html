@@ -134,34 +134,59 @@
         <h3 id="modal-room-title">Бронювання кімнати</h3>
 
         <form id="booking-form" class="form-layout">
-            <div class="form-group">
-                <label for="userName">Ваше ім'я</label>
-                <input type="text" id="userName" required placeholder="Напр., Іван">
+            <div id="guest-fields">
+                <div class="form-group">
+                    <label for="userName">Ваше ім'я</label>
+                    <input type="text" id="userName" placeholder="Напр., Іван">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Ваш Email</label>
+                    <input type="email" id="userEmail" placeholder="ivan@gmail.com">
+                </div>
             </div>
+
             <div class="form-group">
-                <label for="userEmail">Ваш Email</label>
-                <input type="email" id="userEmail" required placeholder="ivan@gmail.com">
+                <label for="userPhone">Номер телефону</label>
+                <input type="tel" id="userPhone" required placeholder="+38 (099) 000-00-00">
             </div>
             <div class="form-group">
                 <label for="bookingDate">Дата та час репетиції</label>
                 <input type="datetime-local" id="bookingDate" required>
             </div>
-            <input type="hidden" id="hiddenRoomName">
 
+            <input type="hidden" id="hiddenRoomName">
             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Підтвердити бронювання</button>
         </form>
     </div>
     </div>
 
     <div class="modal" id="login-modal">
-        <div class="modal-content stub-content">
+        <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h3>Особистий кабінет</h3>
-            <p class="stub-text">Вхід у систему (Заглушка).</p>
-            <p class="stub-subtext">Ця сторінка в розробці. У наступній лабораторній роботі тут буде реалізована форма авторизації (Login/Register) та особистий кабінет музиканта.</p>
-            <div class="stub-buttons">
-                <button class="btn btn-primary close-stub">Зрозуміло</button>
-            </div>
+            <h3 id="auth-title">Вхід у кабінет</h3>
+
+            <form id="auth-form" class="form-layout">
+                <div class="form-group" id="name-group" style="display: none;">
+                    <label for="authName">Ваше ім'я</label>
+                    <input type="text" id="authName" placeholder="Напр., Іван">
+                </div>
+
+                <div class="form-group">
+                    <label for="authEmail">Email</label>
+                    <input type="email" id="authEmail" required placeholder="ivan@gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="authPassword">Пароль</label>
+                    <input type="password" id="authPassword" required placeholder="********">
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="auth-submit-btn" style="width: 100%; margin-top: 15px;">Увійти</button>
+
+                <p style="text-align: center; margin-top: 15px; font-size: 14px; color: #a0a0a0;">
+                    Немає акаунту? <a href="#" id="toggle-auth" style="color: #e50914; text-decoration: none; font-weight: 600;">Зареєструватись</a>
+                </p>
+            </form>
         </div>
     </div>
 

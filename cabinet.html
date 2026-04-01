@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrumSpace | Особистий кабінет</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+</head>
+<body class="cabinet-page">
+
+    <header class="header">
+        <div class="logo"><a href="index.html" style="text-decoration: none; color: inherit;">DRUM<span>SPACE</span></a></div>
+
+        <nav class="navbar">
+            <ul class="nav-links">
+                <li><a href="index.html">Головна</a></li>
+                <li><a href="#" class="btn-login" id="logout-btn">ВИЙТИ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="cabinet-grid">
+        <aside class="profile-sidebar">
+            <div class="profile-card">
+                <div class="avatar-circle" id="user-initials">??</div>
+                <h2 id="profile-name">Завантаження...</h2>
+                <p id="profile-email">...</p>
+
+                <div class="user-stats">
+                    <div class="stat-box">
+                        <span id="stat-total">0</span>
+                        <label>Репетицій</label>
+                    </div>
+                    <div class="stat-box">
+                        <span id="stat-next">--:--</span>
+                        <label>Наступна</label>
+                    </div>
+                </div>
+            </div>
+            <div class="loyalty-card">
+                <h3>Програма лояльності</h3>
+                <p id="loyalty-text">Завантаження...</p>
+                <div class="progress-bar">
+                    <div id="loyalty-progress" class="progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </aside>
+
+        <section class="content-area">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="calendar-view">КАЛЕНДАР</button>
+                <button class="tab-btn" data-tab="list-view">СПИСОК ЗАПИСІВ</button>
+            </div>
+
+            <div id="calendar-view" class="tab-pane active">
+                <div id="calendar"></div>
+            </div>
+
+            <div id="list-view" class="tab-pane">
+                <table class="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Кімната</th>
+                            <th>Дата та час</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-list-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+
+            if (!userId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Налаштування профілю
+            document.getElementById('profile-name').innerText = userName;
+            document.getElementById('profile-email').innerText = localStorage.getItem('userEmail') || 'музикант';
+            document.getElementById('user-initials').innerText = userName.substring(0, 2).toUpperCase();
+
+            // 1. Отримуємо бронювання з сервера
+            async function fetchBookings() {
+                const response = await fetch(`http://localhost:3000/users/${userId}/bookings`);
+                const bookings = await response.json();
+
+                updateStats(bookings);
+                renderCalendar(bookings);
+                renderTable(bookings);
+            }
+
+            // 2. Статистика
+            function updateStats(bookings) {
+                const count = bookings.length;
+                document.getElementById('stat-total').innerText = count;
+
+                // --- ЛОГІКА ПРОГРАМИ ЛОЯЛЬНОСТІ ---
+                const goal = 5; // Скільки всього потрібно репетицій для знижки
+                const remaining = goal - (count % goal); // Скільки залишилось до наступної
+                const progressPercent = ((count % goal) / goal) * 100;
+
+                const loyaltyText = document.getElementById('loyalty-text');
+                const loyaltyProgress = document.getElementById('loyalty-progress');
+
+                if (count > 0 && count % goal === 0) {
+                    loyaltyText.innerHTML = "<strong>Вітаємо!</strong> Ви отримали знижку 10% на наступну гру!";
+                    loyaltyProgress.style.width = "100%";
+                    loyaltyProgress.style.background = "#28a745"; // Змінюємо на зелений, коли мета досягнута
+                } else {
+                    loyaltyText.innerText = `Зроби ще ${remaining} репетиції для знижки 10%`;
+                    loyaltyProgress.style.width = `${progressPercent}%`;
+                    loyaltyProgress.style.background = "#e50914"; // Повертаємо фірмовий червоний
+                }
+
+                // Оновлення дати наступної сесії (залишаємо як було)
+                if (count > 0) {
+                    const next = bookings[0].content.split(': ')[1] || '--:--';
+                    document.getElementById('stat-next').innerText = next.substring(5, 10);
+                }
+            }
+
+            // 3. Календар
+            function renderCalendar(bookings) {
+                const events = bookings.map(b => ({
+                    title: b.roomName,
+                    start: b.content.replace('Дата репетиції: ', ''),
+                    backgroundColor: '#e50914',
+                    borderColor: '#e50914'
+                }));
+
+                const calendarEl = document.getElementById('calendar');
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'uk',
+                    themeSystem: 'standard',
+                    events: events,
+                    height: 'auto'
+                });
+                calendar.render();
+            }
+
+            // 4. Таблиця з можливістю видалення
+            function renderTable(bookings) {
+                const tbody = document.getElementById('bookings-list-body');
+                tbody.innerHTML = bookings.map(b => `
+                    <tr>
+                        <td><strong>${b.roomName}</strong></td>
+                        <td>${b.content.replace('Дата репетиції: ', '')}</td>
+                        <td><button class="btn-delete" onclick="deleteBooking(${b.id})">Скасувати</button></td>
+                    </tr>
+                `).join('');
+            }
+
+            // 5. Перемикач табів
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn, .tab-pane').forEach(el => el.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                    if (btn.dataset.tab === 'calendar-view') window.dispatchEvent(new Event('resize'));
+                });
+            });
+
+            // 6. Вихід
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            });
+
+            fetchBookings();
+        });
+
+        // Функція видалення (CRUD: Delete)
+        async function deleteBooking(id) {
+            if (confirm('Ви впевнені, що хочете скасувати це бронювання?')) {
+                try {
+                    const response = await fetch(`http://localhost:3000/bookings/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        location.reload();
+                    }
+                } catch (err) {
+                    alert('Помилка при видаленні');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -82,6 +82,11 @@ h1, h2, h3, .logo, .btn, .price {
     color: white !important;
 }
 
+#logout-btn {
+    cursor: pointer;
+    display: inline-block;
+}
+
 .burger {
     display: none;
     cursor: pointer;
@@ -298,6 +303,206 @@ h1, h2, h3, .logo, .btn, .price {
     margin-top: 40px;
     color: var(--text-muted);
     font-size: 0.8rem;
+}
+
+/* --- СТИЛІ ДЛЯ МОДАЛЬНОГО ВІКНА ТА ФОРМИ БРОНЮВАННЯ --- */
+
+/* Контейнер модального вікна */
+.modal-content {
+    background-color: #1e1e24; /* М'який темний фон замість чисто чорного */
+    border: 1px solid #333; /* Тонка ледь помітна рамка замість яскравої червоної */
+    border-radius: 12px; /* Закруглені кути */
+    padding: 30px;
+    max-width: 450px; /* Робимо вікно компактнішим */
+    width: 90%;
+    margin: 10% auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7); /* Глибока тінь для об'єму */
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Заголовок модалки */
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 22px;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* Розташування полів форми один під одним */
+.form-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+/* Стиль для підписів (Лейблів) */
+.form-group label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #a0a0a0; /* Світло-сірий текст, щоб не зливався з інпутом */
+    font-weight: 500;
+}
+
+/* Самі поля вводу */
+.form-group input {
+    padding: 14px;
+    background-color: #2b2b33; /* Трохи світліший за фон вікна */
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    font-family: inherit;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Ефект при кліку на поле вводу */
+.form-group input:focus {
+    outline: none;
+    border-color: #e50914; /* Фірмовий червоний акцент DrumSpace */
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+/* Кнопка закриття (Хрестик) */
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #ffffff;
+}
+
+/* Кнопка підтвердження */
+#booking-form .btn-primary {
+    background-color: #e50914;
+    color: white;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#booking-form .btn-primary:hover {
+    background-color: #f40612; /* Трохи яскравіший при наведенні */
+}
+
+#booking-form .btn-primary:active {
+    transform: scale(0.98); /* Легке натискання */
+}
+
+/* --- CABINET STYLES --- */
+/* 1. Додаємо відступ для всієї сторінки, щоб шапка не закривала контент */
+.cabinet-page {
+    background-color: #0f0f12;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column; /* Розташовуємо шапку і контент один під одним */
+}
+
+/* 2. Виправляємо відступи та центрування сітки */
+.cabinet-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    padding: 100px 5% 40px; /* 100px зверху звільняє місце під шапкою */
+    max-width: 1400px;
+    margin: 0 auto; /* Центрує сітку по горизонталі */
+    width: 100%;
+    flex-grow: 1; /* Заповнює вільний простір */
+    align-items: start; /* Щоб картки не розтягувалися на всю висоту */
+}
+
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-card, .loyalty-card {
+    background: #1e1e24;
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid #333;
+}
+
+.avatar-circle {
+    width: 90px; height: 90px;
+    background: linear-gradient(45deg, #e50914, #9b060d);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: bold; font-family: 'Oswald';
+}
+
+.user-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.stat-box {
+    background: #2b2b33;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.stat-box span { display: block; font-size: 24px; font-weight: bold; color: #e50914; }
+.stat-box label { font-size: 12px; color: #888; text-transform: uppercase; }
+
+.progress-bar { height: 8px; background: #333; border-radius: 4px; margin-top: 15px; overflow: hidden; }
+.progress-fill { height: 100%; background: #e50914; border-radius: 4px; }
+
+/* ТАБИ ТА ТАБЛИЦЯ */
+.tabs-header { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+.tab-btn {
+    background: none; border: none; color: #888;
+    font-family: 'Oswald'; font-size: 16px; cursor: pointer; padding: 10px 20px;
+    transition: 0.3s;
+}
+.tab-btn.active { color: #e50914; border-bottom: 2px solid #e50914; }
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+.booking-table { width: 100%; border-collapse: collapse; background: #1e1e24; border-radius: 12px; overflow: hidden; }
+.booking-table th { background: #2b2b33; padding: 15px; text-align: left; font-size: 14px; color: #888; }
+.booking-table td { padding: 15px; border-bottom: 1px solid #333; }
+
+.btn-delete { color: #ff4444; background: none; border: 1px solid #ff4444; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+.btn-delete:hover { background: #ff4444; color: white; }
+
+/* Календар адаптація під темну тему */
+#calendar { background: #1e1e24; padding: 20px; border-radius: 16px; border: 1px solid #333; }
+.fc { font-family: 'Inter', sans-serif; color: white; }
+.fc-toolbar-title { font-family: 'Oswald'; text-transform: uppercase; }
+.fc-button-primary { background-color: #2b2b33 !important; border: none !important; }
+.fc-daygrid-day-number { color: #aaa; text-decoration: none; }
+
+@media (max-width: 900px) {
+    .cabinet-grid { grid-template-columns: 1fr; }
 }
 
 /* --- АДАПТИВНІСТЬ --- */
