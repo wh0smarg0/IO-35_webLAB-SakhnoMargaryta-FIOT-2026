@@ -85,52 +85,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 4. ЛОГІКА ВЗАЄМОДІЇ З БЕКЕНДОМ ---
 
     // Функція для створення бронювання в БД
-    async function createBooking(roomName) {
+    // Знаходимо форму та елементи
+    const bookingForm = document.getElementById('booking-form');
+    const modalRoomTitle = document.getElementById('modal-room-title');
+    const hiddenRoomName = document.getElementById('hiddenRoomName');
+
+    // Відкриваємо модалку при кліку на "Забронювати" і записуємо назву кімнати
+    bookingButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const card = e.target.closest('.card');
+            const roomName = card ? card.querySelector('h3').innerText : 'Кімната';
+
+            // Підставляємо назву кімнати у вікно
+            modalRoomTitle.innerText = `Бронювання: ${roomName}`;
+            hiddenRoomName.value = roomName; // Зберігаємо для відправки
+
+            bookingModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Відправка форми на сервер
+    bookingForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Зупиняємо стандартне перезавантаження сторінки
+
+        // Збираємо дані з полів
         const bookingData = {
-            roomName: roomName,
-            content: `Бронювання кімнати ${roomName}, створене через фронтенд`,
-            userId: 1
+            name: document.getElementById('userName').value,
+            email: document.getElementById('userEmail').value,
+            roomName: document.getElementById('hiddenRoomName').value,
+            date: document.getElementById('bookingDate').value
         };
 
         try {
-            // Виконуємо POST запит до нашого Node.js сервера
             const response = await fetch('http://localhost:3000/bookings', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' // Вказуємо формат даних
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(bookingData)
             });
 
             if (response.ok) {
-                const result = await response.json();
-                console.log('Успіх:', result);
-                alert(`Кімнату "${result.roomName}" успішно заброньовано!`);
-                closeAllModals();
+                alert('Супер! Бронювання успішно створено.');
+                bookingForm.reset(); // Очищаємо поля
+                closeAllModals();    // Закриваємо вікно
             } else {
-                alert('Помилка сервера при створенні бронювання');
+                alert('Помилка сервера. Спробуйте ще раз.');
             }
         } catch (error) {
-            console.error('Помилка Fetch:', error);
-            alert('Не вдалося з’єднатися з сервером. Перевір, чи запущено node server.js');
+            console.error('Помилка:', error);
+            alert('Немає зв’язку з сервером. Запустіть node server.js');
         }
-    }
-
-    // Оновлюємо обробник для кнопок бронювання
-    bookingButtons.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            // Знаходимо назву кімнати з найближчої картки
-            const card = e.target.closest('.card');
-            const roomName = card ? card.querySelector('h3').innerText : 'Невідома кімната';
-
-            bookingModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-
-            // Зберігаємо назву обраної кімнати, щоб знати, що бронювати
-            bookingModal.dataset.selectedRoom = roomName;
-        });
     });
 
     document.addEventListener('keydown', (e) => {

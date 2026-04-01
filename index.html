@@ -129,16 +129,28 @@
     </main>
 
     <div class="modal" id="booking-modal">
-        <div class="modal-content stub-content">
-            <span class="close-modal">&times;</span>
-            <h3>Бронювання кімнати</h3>
-            <p class="stub-text">Заглушка вікна бронювання.</p>
-            <p class="stub-subtext">Це тимчасове вікно. У наступних лабораторних роботах тут буде реалізована форма бронювання репетиційних кімнат з вибором часу та обладнання.</p>
-            <div class="stub-buttons">
-                <button class="btn btn-outline close-stub">Повернутись</button>
-                <a href="#catalog" class="btn btn-primary close-stub">До каталогу</a>
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3 id="modal-room-title">Бронювання кімнати</h3>
+
+        <form id="booking-form" class="form-layout">
+            <div class="form-group">
+                <label for="userName">Ваше ім'я</label>
+                <input type="text" id="userName" required placeholder="Напр., Іван">
             </div>
-        </div>
+            <div class="form-group">
+                <label for="userEmail">Ваш Email</label>
+                <input type="email" id="userEmail" required placeholder="ivan@gmail.com">
+            </div>
+            <div class="form-group">
+                <label for="bookingDate">Дата та час репетиції</label>
+                <input type="datetime-local" id="bookingDate" required>
+            </div>
+            <input type="hidden" id="hiddenRoomName">
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Підтвердити бронювання</button>
+        </form>
+    </div>
     </div>
 
     <div class="modal" id="login-modal">
