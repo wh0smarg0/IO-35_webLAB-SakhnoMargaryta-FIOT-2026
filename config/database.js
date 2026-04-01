@@ -1,6 +1,7 @@
-require('dotenv').config(); // завантажує дані з .env
+require('dotenv').config(); // Завантажуємо паролі з .env
 const { Sequelize } = require('sequelize');
 
+// Створюємо підключення
 const sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -10,3 +11,5 @@ const sequelize = new Sequelize(
         dialect: 'mysql'
     }
 );
+
+module.exports = sequelize;
