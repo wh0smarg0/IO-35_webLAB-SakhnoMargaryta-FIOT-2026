@@ -9,11 +9,19 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true // Email має бути унікальним!
+        unique: true
     },
     password: {
         type: DataTypes.STRING,
-        allowNull: false // Тепер пароль обов'язковий
+        allowNull: false
+    },
+    role: {
+        type: DataTypes.STRING,
+        defaultValue: 'user'
+    },
+    isEmailConfirmed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false // За замовчуванням пошта НЕ підтверджена
     }
 });
 

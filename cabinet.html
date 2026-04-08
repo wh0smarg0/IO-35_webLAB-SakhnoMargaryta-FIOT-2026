@@ -99,15 +99,16 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const userId = localStorage.getItem('userId');
             const userName = localStorage.getItem('userName');
+            const token = localStorage.getItem('token'); // ДІСТАЄМО НАШУ ПЕРЕПУСТКУ
 
-            if (!userId) {
+            // Якщо токена немає — викидаємо на головну
+            if (!userId || !token) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            // Налаштування профілю
+            // Налаштування профілю (ім'я та ініціали беремо з пам'яті)
             document.getElementById('profile-name').innerText = userName;
-            document.getElementById('profile-email').innerText = localStorage.getItem('userEmail');
             document.getElementById('user-initials').innerText = userName.substring(0, 2).toUpperCase();
 
             // Логіка для мобільного бургер-меню
@@ -119,14 +120,45 @@
                 });
             }
 
-            // 1. Отримуємо бронювання з сервера
-            async function fetchBookings() {
-                const response = await fetch(`http://localhost:3000/users/${userId}/bookings`);
-                const bookings = await response.json();
+            // --- НОВЕ: БЕЗПЕЧНО ОТРИМУЄМО ПРОФІЛЬ (LAB 3) ---
+            async function fetchProfile() {
+                try {
+                    const response = await fetch('http://localhost:3000/profile', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}` // Показуємо перепустку
+                        }
+                    });
 
-                updateStats(bookings);
-                renderCalendar(bookings);
-                renderTable(bookings);
+                    if (!response.ok) {
+                        // Якщо токен прострочився
+                        throw new Error('Токен недійсний');
+                    }
+
+                    const data = await response.json();
+                    document.getElementById('profile-email').innerText = data.user.email;
+                } catch (error) {
+                    console.error('Помилка авторизації:', error);
+                    alert('Ваша сесія закінчилася. Будь ласка, увійдіть знову.');
+                    localStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            }
+
+            // 1. Отримуємо бронювання з сервера (додаємо токен для безпеки)
+            async function fetchBookings() {
+                try {
+                    const response = await fetch(`http://localhost:3000/users/${userId}/bookings`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const bookings = await response.json();
+
+                    updateStats(bookings);
+                    renderCalendar(bookings);
+                    renderTable(bookings);
+                } catch (error) {
+                    console.error("Помилка завантаження бронювань", error);
+                }
             }
 
             // 2. Статистика
@@ -135,8 +167,8 @@
                 document.getElementById('stat-total').innerText = count;
 
                 // --- ЛОГІКА ПРОГРАМИ ЛОЯЛЬНОСТІ ---
-                const goal = 5; // Скільки всього потрібно репетицій для знижки
-                const remaining = goal - (count % goal); // Скільки залишилось до наступної
+                const goal = 5;
+                const remaining = goal - (count % goal);
                 const progressPercent = ((count % goal) / goal) * 100;
 
                 const loyaltyText = document.getElementById('loyalty-text');
@@ -145,14 +177,13 @@
                 if (count > 0 && count % goal === 0) {
                     loyaltyText.innerHTML = "<strong>Вітаємо!</strong> Ви отримали знижку 10% на наступну гру!";
                     loyaltyProgress.style.width = "100%";
-                    loyaltyProgress.style.background = "#28a745"; // Змінюємо на зелений, коли мета досягнута
+                    loyaltyProgress.style.background = "#28a745";
                 } else {
                     loyaltyText.innerText = `Зроби ще ${remaining} репетиції для знижки 10%`;
                     loyaltyProgress.style.width = `${progressPercent}%`;
-                    loyaltyProgress.style.background = "#e50914"; // Повертаємо фірмовий червоний
+                    loyaltyProgress.style.background = "#e50914";
                 }
 
-                // Оновлення дати наступної сесії (залишаємо як було)
                 if (count > 0) {
                     const next = bookings[0].content.split(': ')[1] || '--:--';
                     document.getElementById('stat-next').innerText = next.substring(5, 10);
@@ -162,13 +193,11 @@
             // 3. Календар
             function renderCalendar(bookings) {
                 const events = bookings.map(b => {
-                    // Витягуємо чисту дату (напр. 2026-04-15T18:00)
                     const fullDateString = b.content.replace('Дата репетиції: ', '');
-                    // Витягуємо тільки час (напр. 18:00)
-                    const timeOnly = fullDateString.split('T')[1];
+                    const timeOnly = fullDateString.split('T')[1] || '';
 
                     return {
-                        title: timeOnly, // Тільки час як заголовок.
+                        title: timeOnly,
                         start: fullDateString,
                         backgroundColor: '#e50914',
                         borderColor: '#e50914'
@@ -176,15 +205,13 @@
                 });
 
                 const calendarEl = document.getElementById('calendar');
-                calendarEl.innerHTML = ''; // Очищаємо, якщо вже був намальований
+                calendarEl.innerHTML = '';
                 const calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     locale: 'uk',
                     themeSystem: 'standard',
                     events: events,
                     height: 'auto',
-                    // ОСЬ ТЕ ЩО ЗМІНИЛОСЬ: Приховуємо час за замовчуванням,
-                    // оскільки ми вже використовуємо його як заголовок.
                     displayEventTime: false
                 });
                 calendar.render();
@@ -194,7 +221,6 @@
             function renderTable(bookings) {
                 const tbody = document.getElementById('bookings-list-body');
                 tbody.innerHTML = bookings.map(b => {
-                    // Витягуємо чисту дату для підстановки у форму (напр. 2026-04-15T18:00)
                     const pureDate = b.content.replace('Дата репетиції: ', '');
 
                     return `
@@ -219,20 +245,38 @@
                 });
             });
 
-            // 6. Вихід
-            document.getElementById('logout-btn').addEventListener('click', () => {
+            // 6. Вихід (НОВЕ: Викликаємо бекенд Logout з LAB 3)
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                try {
+                    // Повідомляємо сервер про вихід
+                    await fetch('http://localhost:3000/logout', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                } catch (err) {
+                    console.log('Помилка при виході на сервері', err);
+                }
+
+                // Видаляємо всі дані з фронтенду
                 localStorage.clear();
                 window.location.href = 'index.html';
             });
 
+            // Запускаємо завантаження даних
+            fetchProfile();
             fetchBookings();
         });
 
-        // Функція видалення (CRUD: Delete)
+        // Функція видалення (Додаємо токен)
         async function deleteBooking(id) {
             if (confirm('Ви впевнені, що хочете скасувати це бронювання?')) {
+                const token = localStorage.getItem('token');
                 try {
-                    const response = await fetch(`http://localhost:3000/bookings/${id}`, { method: 'DELETE' });
+                    const response = await fetch(`http://localhost:3000/bookings/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
                     if (response.ok) {
                         location.reload();
                     }
@@ -246,7 +290,6 @@
         const editModal = document.getElementById('edit-modal');
         const editForm = document.getElementById('edit-form');
 
-        // Відкриття модалки з поточними даними
         window.openEditModal = function(id, currentDate) {
             document.getElementById('editBookingId').value = id;
             document.getElementById('editDate').value = currentDate;
@@ -254,28 +297,31 @@
             document.body.style.overflow = 'hidden';
         };
 
-        // Закриття модалки
         document.getElementById('close-edit-modal').addEventListener('click', () => {
             editModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         });
 
-        // Відправка нових даних на сервер
+        // Відправка нових даних на сервер (Додаємо токен)
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('editBookingId').value;
             const newDate = document.getElementById('editDate').value;
+            const token = localStorage.getItem('token');
 
             try {
                 const response = await fetch(`http://localhost:3000/bookings/${id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ date: newDate })
                 });
 
                 if (response.ok) {
                     alert('Час репетиції успішно оновлено!');
-                    location.reload(); // Перезавантажуємо, щоб оновити таблицю та календар
+                    location.reload();
                 } else {
                     alert('Помилка при оновленні.');
                 }

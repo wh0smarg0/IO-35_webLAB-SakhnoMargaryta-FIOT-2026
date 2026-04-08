@@ -113,6 +113,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const userNameInput = document.getElementById('userName');
     const userEmailInput = document.getElementById('userEmail');
 
+    // === НОВЕ: Змінна та функція для збереження розкладу ===
+    let bookedSchedule = [];
+
+    async function fetchSchedule() {
+        try {
+            const res = await fetch('http://localhost:3000/bookings/schedule');
+            if (res.ok) {
+                bookedSchedule = await res.json();
+            }
+        } catch (e) {
+            console.error('Не вдалося завантажити розклад', e);
+        }
+    }
+
+    // Завантажуємо розклад одразу при відкритті сторінки
+    fetchSchedule();
+    // ========================================================
+
     if (bookingButtons.length > 0) {
         bookingButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -149,9 +167,27 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const currentUserId = localStorage.getItem('userId');
 
+            // Витягуємо дані з полів для перевірки
+            const roomName = document.getElementById('hiddenRoomName').value;
+            const selectedDate = document.getElementById('bookingDate').value;
+
+            // === НОВЕ: ПЕРЕВІРКА НА ЗБІГ ЧАСУ ПЕРЕД ВІДПРАВКОЮ ===
+            // Шукаємо, чи є в розкладі запис для цієї кімнати на цей самий час
+            const isTimeTaken = bookedSchedule.find(booking =>
+                booking.roomName === roomName &&
+                booking.content.includes(selectedDate)
+            );
+
+            if (isTimeTaken) {
+                // Якщо час зайнятий - зупиняємо все і показуємо попередження
+                alert(`❌ Вибачте, кімната "${roomName}" вже зайнята на цей час. Будь ласка, оберіть іншу дату або годину!`);
+                return; // Зупиняє виконання функції, запит на бекенд НЕ відправляється
+            }
+            // =====================================================
+
             const bookingData = {
-                roomName: document.getElementById('hiddenRoomName').value,
-                date: document.getElementById('bookingDate').value,
+                roomName: roomName,
+                date: selectedDate,
                 phone: document.getElementById('userPhone').value
             };
 
@@ -173,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Супер! Бронювання успішно створено.');
                     bookingForm.reset();
                     closeAllModals();
+                    fetchSchedule(); // === НОВЕ: Оновлюємо розклад після успішного бронювання ===
                 } else {
                     alert('Помилка сервера. Перевірте введені дані.');
                 }
@@ -217,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ОСЬ ТЕ ЩО ЗНИКЛО: Відправка форми авторизації/реєстрації
     if (authForm) {
         authForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Зупиняємо перезавантаження (той самий "знак питання")
+            e.preventDefault();
 
             const url = isLoginMode ? 'http://localhost:3000/login' : 'http://localhost:3000/register';
 
@@ -226,8 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: document.getElementById('authPassword').value
             };
 
+            // Додаємо поля для реєстрації
             if (!isLoginMode) {
                 payload.name = document.getElementById('authName').value;
+                // Наш бекенд вимагає підтвердження пароля.
+                // Для простоти інтерфейсу просто дублюємо введений пароль:
+                payload.passwordConfirm = document.getElementById('authPassword').value;
             }
 
             try {
@@ -241,17 +282,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     if (isLoginMode) {
+                        // ЗБЕРІГАЄМО ТОКЕНИ (Це найважливіше для захищених маршрутів!)
+                        localStorage.setItem('token', data.accessToken || data.token);
+                        if (data.refreshToken) {
+                            localStorage.setItem('refreshToken', data.refreshToken);
+                        }
+                        // Зберігаємо дані юзера
                         localStorage.setItem('userId', data.user.id);
                         localStorage.setItem('userName', data.user.name);
+
                         alert(`Вітаємо, ${data.user.name}!`);
                         updateAuthUI();
                         closeAllModals();
                     } else {
-                        alert('Реєстрація успішна! Тепер ви можете увійти.');
+                        // Якщо це була реєстрація з підтвердженням email (Lab 3)
+                        if (data.confirmationLink) {
+                            alert('Реєстрація успішна! Посилання для підтвердження виведено в консоль.');
+                            console.log('Клікніть сюди, щоб підтвердити пошту:', data.confirmationLink);
+                        } else {
+                            alert('Реєстрація успішна! Тепер ви можете увійти.');
+                        }
                         toggleAuthBtn.click();
                     }
                 } else {
-                    alert(data.error || 'Сталася помилка');
+                    alert(data.error || data.message || 'Сталася помилка');
                 }
             } catch (error) {
                 console.error('Помилка авторизації:', error);
@@ -259,4 +313,63 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- ВХІД ЧЕРЕЗ GOOGLE (OAuth) ---
+
+    // Ця функція спрацює автоматично, коли юзер успішно залогіниться у віконці Google
+    async function handleGoogleLogin(response) {
+        // response.credential — це той самий великий JWT токен від Google
+        const googleToken = response.credential;
+
+        try {
+            // Відправляємо токен на НАШ бекенд
+            const res = await fetch('http://localhost:3000/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: googleToken })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                // Зберігаємо наші DrumSpace токени та дані юзера
+                localStorage.setItem('token', data.accessToken);
+                if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+                localStorage.setItem('userId', data.user.id);
+                localStorage.setItem('userName', data.user.name);
+
+                alert(`Вітаємо, ${data.user.name}! Вхід через Google успішний.`);
+
+                // Закриваємо модалку і оновлюємо інтерфейс (або перекидаємо в кабінет)
+                closeAllModals();
+                updateAuthUI();
+                // Якщо хочеш одразу кидати в кабінет: window.location.href = 'cabinet.html';
+            } else {
+                alert('Помилка Google авторизації: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Помилка:', error);
+            alert('Немає зв’язку з сервером.');
+        }
+    }
+
+    // Ініціалізація Google кнопки при завантаженні сторінки
+    window.onload = function () {
+        if (window.google) {
+            google.accounts.id.initialize({
+                // УВАГА: Встав сюди свій справжній Client ID!
+                client_id: "284257768972-hdh3hevqp0rbv3he45c3ju2tpqf5cpei.apps.googleusercontent.com",
+                callback: handleGoogleLogin // Яку функцію викликати після успіху
+            });
+
+            // Малюємо кнопку в нашому контейнері
+            const btnContainer = document.getElementById("google-button-container");
+            if (btnContainer) {
+                google.accounts.id.renderButton(
+                    btnContainer,
+                    { theme: "outline", size: "large", width: "100%" } // Налаштування стилю кнопки
+                );
+            }
+        }
+    };
 });

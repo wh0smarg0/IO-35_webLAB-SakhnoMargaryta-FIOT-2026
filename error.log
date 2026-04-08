@@ -1,0 +1,9 @@
+[2026-04-08T08:10:53.381Z] POST /bookings - Помилка: Cannot read properties of undefined (reading 'roomName')
+[2026-04-08T08:57:38.193Z] POST /auth/google - Помилка: Wrong number of segments in token: fake_google_token
+[2026-04-08T10:37:32.690Z] POST /auth/google - Помилка: Wrong number of segments in token: 284257768972-hdh3hevqp0rbv3he45c3ju2tpqf5cpei.apps.googleusercontent.com
+[2026-04-08T10:47:08.452Z] POST /bookings - Помилка: notNull Violation: Booking.roomName cannot be null,
+notNull Violation: Booking.phone cannot be null
+[2026-04-08T10:47:35.640Z] POST /bookings - Помилка: notNull Violation: Booking.roomName cannot be null,
+notNull Violation: Booking.phone cannot be null
+[2026-04-08T10:48:03.489Z] POST /bookings - Помилка: notNull Violation: Booking.roomName cannot be null,
+notNull Violation: Booking.phone cannot be null
