@@ -138,7 +138,6 @@ app.post('/register', async (req, res) => {
 });
 
 // 2. Вхід (Логін)
-// 2. Вхід (Логін)
 app.post('/login', loginLimiter, async (req, res) => {
     try {
         // Шукаємо юзера за email
@@ -180,7 +179,6 @@ app.post('/login', loginLimiter, async (req, res) => {
 });
 
 // --- ЗАХИЩЕНИЙ МАРШРУТ (ПРОФІЛЬ) ---
-// Зверни увагу: ми передаємо authenticateToken другим параметром!
 app.get('/profile', authenticateToken, async (req, res) => {
     try {
         // Оскільки middleware пропустив нас сюди, у req.user є ID користувача
@@ -293,21 +291,37 @@ app.get('/bookings/schedule', async (req, res) => {
 // 3. Отримати бронювання КОНКРЕТНОГО користувача
 app.get('/users/:id/bookings', authenticateToken, async (req, res) => {
     try {
-        // --- ГОЛОВНА ПЕРЕВІРКА БЕЗПЕКИ ---
-        // Якщо ID з токена НЕ збігається з ID в URL (і цей юзер не адмін) — блокуємо!
+        // 1. Перевірка безпеки (IDOR)
         if (req.user.id !== parseInt(req.params.id) && req.user.role !== 'admin') {
-            return res.status(403).json({
-                error: "Доступ заборонено! Ви можете переглядати лише власні записи."
-            });
+            return res.status(403).json({ error: "Доступ заборонено!" });
         }
 
+        // 2. Знаходимо самого користувача, щоб дізнатися його email
+        const user = await User.findByPk(req.params.id);
+        if (!user) return res.status(404).json({ error: "Користувача не знайдено" });
+
+        // 3. ШУКАЄМО ЗАПИСИ:
+        // Або ті, де стоїть його ID,
+        // АБО ті, де UserId порожній (гість), але вказана пошта цього юзера
+        const { Op } = require('sequelize'); // Потрібно для складних запитів "АБО"
+
         const userBookings = await Booking.findAll({
-            where: { UserId: req.params.id }
+            where: {
+                [Op.or]: [
+                    { UserId: req.params.id },
+                    {
+                        [Op.and]: [
+                            { UserId: null },
+                            { guestEmail: user.email }
+                        ]
+                    }
+                ]
+            }
         });
+
         res.json(userBookings);
     } catch (err) {
         logError(err, req);
-        console.error(err);
         res.status(500).json({ error: err.message });
     }
 });

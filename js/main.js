@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 2. ПЛАВНИЙ СКРОЛ ---
-    // --- 2. ПЛАВНИЙ СКРОЛ (ВИПРАВЛЕНИЙ) ---
     document.querySelectorAll('a').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
@@ -66,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = 'auto';
     };
 
-    // Відкриття вікна Входу
     // Відкриття вікна Входу
     if (loginBtnDynamic) {
         loginBtnDynamic.addEventListener('click', (e) => {
@@ -295,14 +293,50 @@ document.addEventListener('DOMContentLoaded', () => {
                         updateAuthUI();
                         closeAllModals();
                     } else {
-                        // Якщо це була реєстрація з підтвердженням email (Lab 3)
+                        // --- РЕЄСТРАЦІЯ УСПІШНА (Lab 3) ---
                         if (data.confirmationLink) {
-                            alert('Реєстрація успішна! Посилання для підтвердження виведено в консоль.');
-                            console.log('Клікніть сюди, щоб підтвердити пошту:', data.confirmationLink);
+                            // Ховаємо "або" та кнопку Google, якщо вони є у футері модалки
+                            const authFooter = authForm.closest('.modal-content')?.querySelector('.auth-footer');
+                            if (authFooter) authFooter.style.display = 'none';
+
+                            authForm.innerHTML = `
+                                <div class="registration-success" style="padding: 20px 10px; text-align: center; font-family: 'Inter', sans-serif;">
+                                    <div style="background: #2ecc71; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                        <svg width="30" height="30" viewBox="0 0 20 20" fill="white">
+                                            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z"/>
+                                        </svg>
+                                    </div>
+                    
+                                    <h2 style="color: #fff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-size: 24px;">Майже готово!</h2>
+                                    
+                                    <p style="color: #bbb; font-size: 14px; line-height: 1.6; margin-bottom: 25px;">
+                                        Ми відправили лист на вашу пошту.<br>
+                                        Підтвердіть її, щоб активувати профіль.
+                                    </p>
+                    
+                                    <a href="${data.confirmationLink}" target="_blank" 
+                                       style="display: block; background: #ff0000; color: #fff; text-decoration: none; padding: 15px; border-radius: 4px; font-weight: 800; text-transform: uppercase; font-size: 14px; transition: background 0.3s; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);">
+                                       Підтвердити Email
+                                    </a>
+                    
+                                    <div style="border-top: 1px solid #333; padding-top: 20px; margin-top: 10px;">
+                                        <p style="color: #777; font-size: 12px; margin-bottom: 10px;">Після підтвердження ви зможете увійти</p>
+                                        <a href="#" onclick="location.reload(); return false;" 
+                                           style="color: #fff; font-size: 13px; text-decoration: underline; opacity: 0.8;">
+                                           Повернутися до входу
+                                        </a>
+                                    </div>
+                                </div>
+                            `;
+
+                            // Видаляємо кнопку перемикання режимів
+                            if (toggleAuthBtn && toggleAuthBtn.parentElement) {
+                                toggleAuthBtn.parentElement.style.display = 'none';
+                            }
                         } else {
                             alert('Реєстрація успішна! Тепер ви можете увійти.');
+                            toggleAuthBtn.click();
                         }
-                        toggleAuthBtn.click();
                     }
                 } else {
                     alert(data.error || data.message || 'Сталася помилка');
