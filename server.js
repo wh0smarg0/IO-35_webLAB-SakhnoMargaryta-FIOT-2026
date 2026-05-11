@@ -17,6 +17,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const NodeCache = require('node-cache');
 const { body, validationResult } = require('express-validator');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const cache = new NodeCache({ stdTTL: 60 });
 
@@ -24,6 +26,38 @@ const PORT = 3000;
 const app = express();
 
 app.use(helmet());
+
+// --- НАЛАШТУВАННЯ SWAGGER ---
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'DrumSpace API',
+            version: '1.0.0',
+            description: 'Документація REST API для застосунку DrumSpace',
+        },
+        servers: [
+            {
+                url: 'http://localhost:3000',
+                description: 'Локальний сервер'
+            }
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                }
+            }
+        }
+    },
+    apis: ['./server.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// ----------------------------
 
 // --- ПІДГОТОВКА ПАПОК ---
 const uploadDir = './uploads';
@@ -134,7 +168,29 @@ let roomsList = [
     }
 ];
 
-
+/**
+ * @swagger
+ * /api/rooms:
+ *   get:
+ *     summary: Отримати список усіх репетиційних кімнат
+ *     tags: [Rooms]
+ *     responses:
+ *       200:
+ *         description: Список кімнат успішно отримано
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   name:
+ *                     type: string
+ *                   price:
+ *                     type: integer
+ */
 app.get('/api/rooms', async (req, res) => {
     try {
         // Перевіряємо, чи є дані в кеші
@@ -296,6 +352,33 @@ app.post('/register', async (req, res) => {
 });
 
 // 2. Вхід (Логін)
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Авторизація користувача
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *               password:
+ *                 type: string
+ *                 example: password123
+ *     responses:
+ *       200:
+ *         description: Успішний вхід, отримано токени
+ *       401:
+ *         description: Невірний пароль
+ *       404:
+ *         description: Користувача не знайдено
+ */
 app.post('/login', loginLimiter, async (req, res) => {
     try {
         // Шукаємо юзера за email
@@ -337,6 +420,20 @@ app.post('/login', loginLimiter, async (req, res) => {
 });
 
 // --- ЗАХИЩЕНИЙ МАРШРУТ (ПРОФІЛЬ) ---
+/**
+ * @swagger
+ * /profile:
+ *   get:
+ *     summary: Отримати дані профілю поточного користувача
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Дані профілю отримано
+ *       401:
+ *         description: Немає токена або він недійсний
+ */
 app.get('/profile', authenticateToken, async (req, res) => {
     try {
         // Оскільки middleware пропустив нас сюди, у req.user є ID користувача
@@ -447,6 +544,27 @@ app.get('/bookings/schedule', async (req, res) => {
 });
 
 // 3. Отримати бронювання КОНКРЕТНОГО користувача
+/**
+ * @swagger
+ * /users/{id}/bookings:
+ *   get:
+ *     summary: Отримати всі бронювання конкретного користувача
+ *     tags: [Bookings]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID користувача
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Список бронювань отримано
+ *       403:
+ *         description: Доступ заборонено (IDOR protection)
+ */
 app.get('/users/:id/bookings', authenticateToken, async (req, res) => {
     try {
         // 1. Перевірка безпеки (IDOR)
@@ -525,6 +643,31 @@ app.put('/bookings/:id', async (req, res) => {
 });
 
 // Створення нового бронювання (для всіх)
+/**
+ * @swagger
+ * /bookings:
+ *   post:
+ *     summary: Створити нове бронювання
+ *     tags: [Bookings]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               roomName:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Бронювання створено
+ *       400:
+ *         description: Помилка валідації даних
+ */
 app.post('/bookings', [
     // ПЕРЕВІРКА ДАНИХ ПЕРЕД ОБРОБКОЮ
     body('roomName').notEmpty().withMessage('Назва кімнати обов\'язкова'),
