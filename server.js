@@ -2,46 +2,192 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
-// В реальному житті цей ID беруть з панелі розробника Google Cloud Console
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '284257768972-hdh3hevqp0rbv3he45c3ju2tpqf5cpei.apps.googleusercontent.com';
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
-const SECRET_KEY = process.env.JWT_SECRET || 'super_secret_drumspace_key';
-const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET || 'super_mega_refresh_secret_key';
 const rateLimit = require('express-rate-limit');
 const sequelize = require('./config/database');
 const User = require('./models/User');
 const Booking = require('./models/Booking');
+const Room = require('./models/Room');
 const fs = require('fs');
 const path = require('path');
-
-const app = express();
-app.use(express.json()); // для роботи з JSON
-
+const morgan = require('morgan');
+const winston = require('winston');
+const multer = require('multer');
+const DailyRotateFile = require('winston-daily-rotate-file');
 const cors = require('cors');
-app.use(cors()); // Дозволяє фронтенду робити запити до API
 
-// Встановлення зв'язку: Один користувач має багато бронювань
-User.hasMany(Booking);
-Booking.belongsTo(User);
+const PORT = 3000;
+const app = express();
 
-// Синхронізація з базою даних
-sequelize.sync({ alter: true })
-  .then(() => {
-    console.log("З'єднання встановлено, таблиці створено успішно! ✅");
-  })
-  .catch(err => console.error("Помилка підключення до БД: ❌", err));
 
-// --- ФУНКЦІЯ ЛОГУВАННЯ ПОМИЛОК ---
-const logError = (err, req) => {
-    // Створюємо красивий запис із датою, методом та адресою
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] ${req.method} ${req.url} - Помилка: ${err.message}\n`;
+// --- ПІДГОТОВКА ПАПОК ---
+const uploadDir = './uploads';
+const logDir = './logs';
+[uploadDir, logDir].forEach(dir => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+});
 
-    // Дописуємо цей рядок у файл error.log (створить файл, якщо його немає)
-    fs.appendFile(path.join(__dirname, 'error.log'), logMessage, (appendErr) => {
-        if (appendErr) console.error("❌ Не вдалося записати лог у файл:", appendErr);
+
+// --- ЛОГУВАННЯ (Winston) ---
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    transports: [
+        new DailyRotateFile({
+            filename: 'logs/app-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '14d'
+        }),
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.printf(({ timestamp, level, message }) => {
+                    const msg = typeof message === 'object' ? JSON.stringify(message) : message;
+                    return `${timestamp} [${level}]: ${msg}`;
+                })
+            )
+        })
+    ]
+});
+
+
+// --- MIDDLEWARES ---
+app.use(express.json());
+app.use(cors());
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+app.use(morgan('dev'));
+
+
+// Логування часу виконання кожного запиту
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        logger.info({
+            method: req.method,
+            url: req.url,
+            duration: `${duration}ms`
+        });
     });
-};
+    next();
+});
+
+
+// --- КОНФІГУРАЦІЯ MULTER ---
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
+});
+
+
+const upload = multer({
+    storage,
+    limits: { fileSize: 1024 * 1024 }, // Обмеження 1MB
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+        if (allowedTypes.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Недопустимий формат файлу. Дозволено: jpg, png, pdf'), false);
+        }
+    }
+});
+
+
+// --- ДАНІ ТА ПАРАМЕТРИ АВТЕНТИФІКАЦІЇ ---
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '284257768972-hdh3hevqp0rbv3he45c3ju2tpqf5cpei.apps.googleusercontent.com';
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+const SECRET_KEY = process.env.JWT_SECRET || 'super_secret_drumspace_key';
+const REFRESH_SECRET_KEY = process.env.JWT_REFRESH_SECRET || 'super_mega_refresh_secret_key';
+
+
+// --- ІМІТАЦІЯ БАЗИ ДАНИХ ДЛЯ КІМНАТ ---
+let roomsList = [
+    {
+        id: 1,
+        name: "КІМНАТА 'ГРІН'",
+        description: "База 'Ритм', ст. м. Почайна. Tama Starclassic, Zildjian K Custom.",
+        price: 350,
+        image: "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+        id: 2,
+        name: "КІМНАТА 'СИНТЕЗ'",
+        description: "База 'Аудіо', ст. м. Контрактова. Roland TD-27KV, DW 5000.",
+        price: 250,
+        image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=400&auto=format&fit=crop"
+    },
+    {
+        id: 3,
+        name: "КІМНАТА 'СТУДІЯ'",
+        description: "База 'Мікс', ст. м. Либідська. Ludwig Centennial, Shure Kit.",
+        price: 500,
+        image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=400&auto=format&fit=crop"
+    }
+];
+
+
+app.get('/api/rooms', async (req, res) => {
+    try {
+        const rooms = await Room.findAll(); // Дістаємо всі записи з таблиці
+        res.json(rooms);
+    } catch (err) {
+        res.status(500).json({ error: "Помилка при читанні з БД" });
+    }
+});
+
+
+app.post('/rooms', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: "Завантажте фото" });
+
+        const { roomName, badge, location, gear, price } = req.body;
+
+        const newRoom = await Room.create({
+            name: roomName,
+            badge: badge || 'PRO',
+            location: location,
+            gear: gear,
+            price: price || 400,
+            image: `/uploads/${req.file.filename}`
+        });
+
+        res.status(201).json({ message: "Успішно додано в БД", room: newRoom });
+    } catch (err) {
+        res.status(500).json({ error: "Помилка збереження: " + err.message });
+    }
+});
+
+
+// Завантаження одного файлу
+app.post('/upload', upload.single('file'), (req, res) => {
+    res.json({ message: 'Файл успішно завантажено', file: req.file });
+});
+
+// Завантаження кількох файлів
+app.post('/upload-multiple', upload.array('files', 5), (req, res) => {
+    res.json({ message: 'Файли завантажено успішно', files: req.files });
+});
+
+
+app.get('/status', (req, res) => {
+    res.json({
+        uptime: process.uptime(), // Час роботи сервера в секундах
+        memoryUsage: process.memoryUsage(), // Використання пам'яті
+        timestamp: new Date().toISOString()
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        service: "drumspace-api",
+        timestamp: new Date().toISOString()
+    });
+});
+
 
 // --- MIDDLEWARE ДЛЯ ПЕРЕВІРКИ ТОКЕНА ---
 const authenticateToken = (req, res, next) => {
@@ -63,14 +209,7 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-// Перевірка статусу сервера
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: "ok",
-        service: "drumspace-api",
-        timestamp: new Date().toISOString()
-    });
-});
+// --- МАРШРУТИ АВТОРИЗАЦІЇ ---
 
 // --- ОБМЕЖЕННЯ СПРОБ ВХОДУ ---
 const loginLimiter = rateLimit({
@@ -78,8 +217,6 @@ const loginLimiter = rateLimit({
     max: 5, // Максимум 5 спроб з одного IP
     message: { error: "Забагато спроб входу. Будь ласка, спробуйте пізніше через 15 хвилин." }
 });
-
-// --- МАРШРУТИ АВТОРИЗАЦІЇ ---
 
 // 1. Реєстрація нового користувача
 app.post('/register', async (req, res) => {
@@ -618,6 +755,32 @@ app.post('/auth/google', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-  console.log("Сервер запущено на http://localhost:3000");
+app.use((err, req, res, next) => {
+    logger.error({
+        level: 'error',
+        message: err.message,
+        stack: err.stack,
+        url: req.url,
+        method: req.method
+    });
+    res.status(err.status || 500).json({ error: err.message || "Помилка сервера" });
 });
+
+
+// Встановлення зв'язку: Один користувач має багато бронювань
+User.hasMany(Booking);
+Booking.belongsTo(User);
+
+
+sequelize.sync({ alter: true })
+    .then(() => {
+        // Тільки коли БД готова, запускаємо прослуховування порту
+        app.listen(PORT, () => {
+            console.log(`🚀 Сервер DrumSpace на http://localhost:${PORT}`);
+            logger.info(`Сервер запущено на порту ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error("Помилка підключення до БД: ❌", err);
+        logger.error("Помилка підключення до БД: " + err.message);
+    });
