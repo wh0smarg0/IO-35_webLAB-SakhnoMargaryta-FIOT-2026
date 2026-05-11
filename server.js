@@ -14,10 +14,16 @@ const winston = require('winston');
 const multer = require('multer');
 const DailyRotateFile = require('winston-daily-rotate-file');
 const cors = require('cors');
+const helmet = require('helmet');
+const NodeCache = require('node-cache');
+const { body, validationResult } = require('express-validator');
+
+const cache = new NodeCache({ stdTTL: 60 });
 
 const PORT = 3000;
 const app = express();
 
+app.use(helmet());
 
 // --- ПІДГОТОВКА ПАПОК ---
 const uploadDir = './uploads';
@@ -131,7 +137,20 @@ let roomsList = [
 
 app.get('/api/rooms', async (req, res) => {
     try {
-        const rooms = await Room.findAll(); // Дістаємо всі записи з таблиці
+        // Перевіряємо, чи є дані в кеші
+        const cachedRooms = cache.get('rooms_list');
+        if (cachedRooms) {
+            logger.info('Віддаємо кімнати з швидкого КЕШУ ⚡');
+            return res.json(cachedRooms);
+        }
+
+        // кщо кешу немає — йдемо в БД
+        const rooms = await Room.findAll();
+
+        // Зберігаємо результат у кеш для наступних користувачів
+        cache.set('rooms_list', rooms);
+        logger.info('Віддаємо кімнати з БАЗИ ДАНИХ 🗄️');
+
         res.json(rooms);
     } catch (err) {
         res.status(500).json({ error: "Помилка при читанні з БД" });
@@ -153,6 +172,8 @@ app.post('/rooms', upload.single('file'), async (req, res) => {
             price: price || 400,
             image: `/uploads/${req.file.filename}`
         });
+
+        cache.del('rooms_list');
 
         res.status(201).json({ message: "Успішно додано в БД", room: newRoom });
     } catch (err) {
@@ -504,7 +525,19 @@ app.put('/bookings/:id', async (req, res) => {
 });
 
 // Створення нового бронювання (для всіх)
-app.post('/bookings', async (req, res) => {
+app.post('/bookings', [
+    // ПЕРЕВІРКА ДАНИХ ПЕРЕД ОБРОБКОЮ
+    body('roomName').notEmpty().withMessage('Назва кімнати обов\'язкова'),
+    body('date').notEmpty().withMessage('Дата бронювання обов\'язкова'),
+    body('phone').isLength({ min: 10 }).withMessage('Телефон має містити мінімум 10 символів')
+], async (req, res) => {
+
+    // Перевіряємо, чи були помилки валідації
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ error: errors.array()[0].msg });
+    }
+
     try {
         // Базові дані, які є завжди
         const bookingData = {
